@@ -403,6 +403,8 @@ MonoBehaviour:
   radius: 0
   speed: 1
   destination: {x: 9, y: 0, z: 0}
+  nextPosition: {x: 0, y: 0, z: 1.5}
+  otherSphere: {fileID: 0}
 --- !u!54 &852018117
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -466,6 +468,8 @@ MonoBehaviour:
   radius: 0
   speed: 1
   destination: {x: 9, y: 0, z: 9}
+  nextPosition: {x: 0, y: 0, z: 1.5}
+  otherSphere: {fileID: 852018111}
 --- !u!54 &902911223
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -784,6 +788,8 @@ MonoBehaviour:
   radius: 0
   speed: 1
   destination: {x: 9, y: 0, z: -9}
+  nextPosition: {x: 0, y: 0, z: 1.5}
+  otherSphere: {fileID: 0}
 --- !u!54 &1438660028
 Rigidbody:
   m_ObjectHideFlags: 0
