@@ -15,11 +15,11 @@ public class ObstacleAvoidanceBotManager : MonoBehaviour
         bots = new Dictionary<string, ObstacleAvoidanceBot>();
         botLinks = new Dictionary<string, string>();
 
-        addBotsToDictionary();
-        addLinkWithOtherBot();
+        AddBotsToDictionary();
+        AddLinkWithOtherBot();
     }
 
-    private void addBotsToDictionary()
+    private void AddBotsToDictionary()
     {
         foreach (Transform value in spheres)
         {
@@ -28,11 +28,11 @@ public class ObstacleAvoidanceBotManager : MonoBehaviour
         }
     }
 
-    private void addLinkWithOtherBot()
+    private void AddLinkWithOtherBot()
     {
         foreach (KeyValuePair<string, ObstacleAvoidanceBot> bot in bots)
         {
-            // The manager saved the sphere connection and remove the old one in case it exists
+            // The eventtrigger saved the sphere connection and remove the old one in case it exists
             // A timer is used to make the next connection possible, so it got time to escape
             bot.Value.TriggerSphereLink += (GameObject otherSphere) => 
             {
@@ -40,7 +40,6 @@ public class ObstacleAvoidanceBotManager : MonoBehaviour
                 {
                     RemoveBotLink(otherSphere.name);
                     WaitTimeForNextLink(otherSphere.name);
-
                 }
 
                 botLinks.Add(otherSphere.name, bot.Value.name);
@@ -56,7 +55,7 @@ public class ObstacleAvoidanceBotManager : MonoBehaviour
         }
     }
 
-    public void ResetToStartPosistion()
+    public void ResetToStartPosition()
     {
         foreach (KeyValuePair<string, ObstacleAvoidanceBot> bot in bots)
         {
@@ -72,7 +71,7 @@ public class ObstacleAvoidanceBotManager : MonoBehaviour
 
     private void WaitTimeForNextLink(string botName)
     {
-        if(bots[botName].getCanLink())
+        if(bots[botName].GetCanLink())
             bots[botName].ActivateWaitTimeForNextLink();
     }
 }

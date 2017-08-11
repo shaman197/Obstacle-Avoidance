@@ -36,7 +36,7 @@ public class ObstacleAvoidanceBot : MonoBehaviour
     {
         if(canMove)
         {
-            CheckObatacle();
+            CheckObstacle();
 
             // if there is another sphere in the way go arround it till the time limit or there is another sphere in the way
             if(otherSphere != null)
@@ -58,7 +58,7 @@ public class ObstacleAvoidanceBot : MonoBehaviour
         canMove = value;
     }
 
-    public void CheckObatacle()
+    public void CheckObstacle()
     {
         // A big sphere is cast to check if there are obstacles in front of him. The cast is bigger than the sphere to check the sides
         Collider[] hits = Physics.OverlapSphere(transform.TransformPoint(obstacleCastFromOrigin) + spherecollider.center, radius);
@@ -119,7 +119,7 @@ public class ObstacleAvoidanceBot : MonoBehaviour
         StartCoroutine(WaitTimeForNextLink());
     }
 
-    public bool getCanLink()
+    public bool GetCanLink()
     {
         return canLink;
     }
