@@ -1,24 +1,34 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class ObstacleAvoidanceBot : MonoBehaviour
 {
+    public event UnityAction<GameObject> TriggerSphereLink;
+
     public Vector3 startPosition;
     public float radius;
     public float speed;
+    public float rotationSpeed;
     public Vector3 destination;
-    public Vector3 nextPosition;
+    public Vector3 obstacleCastFromOrigin;
+    public float maxLinkedTime;
+    public float waitTimeForLinkAgain;
 
     private SphereCollider spherecollider;
     private bool canMove;
-    public GameObject otherSphere;
+    private GameObject otherSphere;
+    private bool linkCountdown;
+    private bool canLink;
 
-	private void Start()
+
+    private void Start()
     {
         startPosition = transform.position;
         spherecollider = GetComponent<SphereCollider>();
-        radius = spherecollider.radius;
+        canLink = true;
     }
 	
 	// Update is called once per frame
@@ -28,16 +38,18 @@ public class ObstacleAvoidanceBot : MonoBehaviour
         {
             CheckObatacle();
 
+            // if there is another sphere in the way go arround it till the time limit or there is another sphere in the way
             if(otherSphere != null)
             {
-                transform.RotateAround(otherSphere.transform.position, Vector3.forward, Time.deltaTime * speed);
+                transform.RotateAround(otherSphere.transform.position, Vector3.up, Time.deltaTime * rotationSpeed);
             }
 
-            //else
-            //{
-            //    transform.position = Vector3.Lerp(transform.position, destination, Time.deltaTime * speed);
-            //    transform.LookAt(destination);
-            //}
+            // else just move forward to the desination
+            else
+            {
+                transform.position = Vector3.MoveTowards(transform.position, destination, Time.deltaTime * speed);
+                transform.LookAt(destination);
+            }
         }
 	}
 
@@ -46,28 +58,75 @@ public class ObstacleAvoidanceBot : MonoBehaviour
         canMove = value;
     }
 
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawSphere(spherecollider.center + transform.TransformPoint(nextPosition), radius);
-    }
-
     public void CheckObatacle()
     {
-        Collider[] hits = Physics.OverlapSphere(transform.TransformPoint(nextPosition) + spherecollider.center, radius);
+        // A big sphere is cast to check if there are obstacles in front of him. The cast is bigger than the sphere to check the sides
+        Collider[] hits = Physics.OverlapSphere(transform.TransformPoint(obstacleCastFromOrigin) + spherecollider.center, radius);
 
-        //Debug.Log(transform.name + " " + hits.Length);
-
-        if (hits.Length >= 1)
+        if(canLink)
         {
-            foreach (Collider hit in hits)
+            if (hits.Length >= 1)
             {
-                if (hit.name != "Plane")
+                foreach (Collider hit in hits)
                 {
-                    otherSphere = hit.gameObject;
+                    if (hit.name != "Plane")
+                    {
+                        otherSphere = hit.gameObject;
+
+                        // The object triggers a event and send it to the manager
+                        TriggerSphereLink(otherSphere);
+
+                        if (!linkCountdown)
+                            StartCoroutine(RemoveOtherSphereAfterTime());
+                    }
                 }
             }
         }
+    }
 
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawSphere(spherecollider.center + transform.TransformPoint(obstacleCastFromOrigin), radius);
+    }
+
+    private IEnumerator RemoveOtherSphereAfterTime()
+    {
+        linkCountdown = true;
+
+        yield return new WaitForSecondsRealtime(maxLinkedTime);
+        otherSphere = null;
+
+        linkCountdown = false;
+    }
+
+    private IEnumerator WaitTimeForNextLink()
+    {
+        canLink = false;
+
+        yield return new WaitForSecondsRealtime(waitTimeForLinkAgain);
+
+        canLink = true;
+    }
+
+    public void RemoveOtherSphere()
+    {
+        otherSphere = null;
+    }
+
+    public void ActivateWaitTimeForNextLink()
+    {
+        StartCoroutine(WaitTimeForNextLink());
+    }
+
+    public bool getCanLink()
+    {
+        return canLink;
+    }
+
+    public void ResetSphere()
+    {
+        canMove = false;
+        transform.position = startPosition;
     }
 }
